@@ -6,11 +6,13 @@ const heygen_API = {
 };
 
 const statusElement = document.querySelector('#status');
+const avatarID = document.querySelector('#avatarID');
+const voiceID = document.querySelector('#voiceID');
 const apiKey = heygen_API.apiKey;
 const SERVER_URL = heygen_API.serverUrl;
 
 if (apiKey === 'YourApiKey' || SERVER_URL === '') {
-  alert('Please enter your API key and server URL in the api.json file');
+  alert('Please enter your API key and server URL in the index.js file');
 }
 
 let sessionInfo = null;
@@ -77,7 +79,7 @@ async function startAndDisplaySession() {
   const localDescription = await peerConnection.createAnswer();
   await peerConnection.setLocalDescription(localDescription);
 
- // When ICE candidate is available, send to the server
+  // When ICE candidate is available, send to the server
   peerConnection.onicecandidate = ({ candidate }) => {
     console.log('Received ICE candidate:', candidate);
     if (candidate) {
@@ -93,18 +95,16 @@ async function startAndDisplaySession() {
     );
   };
 
-
-
   // Start session
   await startSession(sessionInfo.session_id, localDescription);
 
   var receivers = peerConnection.getReceivers();
-  
+
   receivers.forEach((receiver) => {
-    receiver.jitterBufferTarget = 500
+    receiver.jitterBufferTarget = 500;
   });
 
-   updateStatus(statusElement, 'Session started successfully');
+  updateStatus(statusElement, 'Session started successfully');
 }
 
 const taskInput = document.querySelector('#taskInput');
@@ -142,7 +142,7 @@ async function talkHandler() {
   updateStatus(statusElement, 'Talking to LLM... please wait');
 
   try {
-    const text = await talkToOpenAI(prompt)
+    const text = await talkToOpenAI(prompt);
 
     if (text) {
       // Send the AI's response to Heygen's streaming.task API
@@ -156,7 +156,6 @@ async function talkHandler() {
     updateStatus(statusElement, 'Error talking to AI');
   }
 }
-
 
 // when clicking the "Close" button, close the connection
 async function closeConnectionHandler() {
@@ -189,7 +188,6 @@ document.querySelector('#startBtn').addEventListener('click', startAndDisplaySes
 document.querySelector('#repeatBtn').addEventListener('click', repeatHandler);
 document.querySelector('#closeBtn').addEventListener('click', closeConnectionHandler);
 document.querySelector('#talkBtn').addEventListener('click', talkHandler);
-
 
 // new session
 async function newSession(quality, avatar_name, voice_id) {
@@ -278,10 +276,7 @@ async function talkToOpenAI(prompt) {
   });
   if (response.status === 500) {
     console.error('Server error');
-    updateStatus(
-      statusElement,
-      'Server Error. Please make sure to set the openai api key',
-    );
+    updateStatus(statusElement, 'Server Error. Please make sure to set the openai api key');
     throw new Error('Server error');
   } else {
     const data = await response.json();
